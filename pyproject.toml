@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ascii-art-generator"
 version = "0.1.0"
-description = "A small Python library and CLI for converting images to ASCII art."
+description = "A small Python library and CLI for converting images and videos to ASCII art."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [
   { name = "Kevin Wong" }
 ]
-keywords = ["ascii", "art", "image", "cli", "pillow"]
+keywords = ["ascii", "art", "image", "video", "cli", "pillow", "imageio", "ffmpeg"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

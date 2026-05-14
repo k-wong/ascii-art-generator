@@ -1,6 +1,42 @@
 import sys
 
+import pytest
+
 from ascii_art_generator import cli
+
+
+def test_photo_mode_uses_autocontrast_by_default(monkeypatch, capsys) -> None:
+    calls = {}
+
+    def fake_image_to_ascii(input_path, options):
+        calls["input_path"] = input_path
+        calls["autocontrast"] = options.autocontrast
+        return "ascii"
+
+    monkeypatch.setattr(cli, "image_to_ascii", fake_image_to_ascii)
+    monkeypatch.setattr(sys, "argv", ["ascii-art", "input.jpg"])
+
+    cli.main()
+
+    assert calls == {"input_path": "input.jpg", "autocontrast": True}
+    assert "ascii" in capsys.readouterr().out
+
+
+def test_photo_mode_supports_no_autocontrast(monkeypatch, capsys) -> None:
+    calls = {}
+
+    def fake_image_to_ascii(input_path, options):
+        calls["input_path"] = input_path
+        calls["autocontrast"] = options.autocontrast
+        return "ascii"
+
+    monkeypatch.setattr(cli, "image_to_ascii", fake_image_to_ascii)
+    monkeypatch.setattr(sys, "argv", ["ascii-art", "input.jpg", "--no-autocontrast"])
+
+    cli.main()
+
+    assert calls == {"input_path": "input.jpg", "autocontrast": False}
+    assert "ascii" in capsys.readouterr().out
 
 
 def test_video_flag_routes_to_video_converter(monkeypatch, tmp_path, capsys) -> None:
@@ -58,9 +94,71 @@ def test_video_flag_routes_to_video_converter(monkeypatch, tmp_path, capsys) -> 
 def test_video_flag_requires_output_dir(monkeypatch) -> None:
     monkeypatch.setattr(sys, "argv", ["ascii-art", "-v", "input.mp4"])
 
-    try:
+    with pytest.raises(SystemExit) as exc_info:
         cli.main()
-    except SystemExit as exc:
-        assert exc.code == 2
-    else:
-        raise AssertionError("Expected video mode without --output-dir to fail")
+
+    assert exc_info.value.code == 2
+
+
+def test_photo_mode_rejects_video_options(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["ascii-art", "input.jpg", "--fps", "12"])
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "--fps can only be used with -v/--video" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_video_mode_rejects_photo_options(monkeypatch, tmp_path, capsys) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "ascii-art",
+            "-v",
+            "input.mp4",
+            "--output",
+            "out.txt",
+            "--output-dir",
+            str(tmp_path / "frames"),
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "--output cannot be used with -v/--video" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_missing_image_path_exits_without_traceback(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["ascii-art", "missing.jpg"])
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "missing.jpg" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_missing_video_path_exits_without_traceback(monkeypatch, tmp_path, capsys) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["ascii-art", "-v", "missing.mp4", "--output-dir", str(tmp_path / "frames")],
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "missing.mp4" in captured.err
+    assert "Traceback" not in captured.err
