@@ -4,8 +4,6 @@ from ascii_art_generator import (
     AsciiOptions,
     image_to_ascii,
     image_to_ascii_from_image,
-    save_ascii_frames_js,
-    save_ascii_js,
 )
 
 
@@ -45,24 +43,6 @@ def test_image_to_ascii_from_image_supports_charset_override() -> None:
     )
 
     assert result == "00000000"
-
-
-def test_save_ascii_js_uses_generic_default_variable(tmp_path) -> None:
-    output = tmp_path / "ascii.js"
-
-    save_ascii_js("`${value}`", output)
-
-    assert "window.ASCII_ART" in output.read_text(encoding="utf-8")
-
-
-def test_save_ascii_frames_js_uses_generic_default_variable(tmp_path) -> None:
-    output = tmp_path / "frames.js"
-
-    save_ascii_frames_js(["aa", "bb"], output)
-
-    contents = output.read_text(encoding="utf-8")
-    assert "window.ASCII_VIDEO_FRAMES" in contents
-    assert "`aa`" in contents
 
 
 def test_image_to_ascii_applies_exif_orientation(tmp_path) -> None:

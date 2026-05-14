@@ -27,6 +27,8 @@ classifiers = [
   "Topic :: Multimedia :: Graphics :: Graphics Conversion",
 ]
 dependencies = [
+  "imageio>=2.34.0",
+  "imageio-ffmpeg>=0.5.0",
   "Pillow>=10.0.0",
 ]
 
@@ -35,14 +37,9 @@ dev = [
   "pytest>=8.0.0",
   "ruff>=0.5.0",
 ]
-video = [
-  "imageio>=2.34.0",
-  "imageio-ffmpeg>=0.5.0",
-]
 
 [project.scripts]
 ascii-art = "ascii_art_generator.cli:main"
-ascii-art-video = "ascii_art_generator.cli:main_video"
 
 [tool.setuptools.packages.find]
 where = ["src"]

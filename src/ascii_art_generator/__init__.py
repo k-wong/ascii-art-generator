@@ -6,8 +6,6 @@ from ascii_art_generator.converter import (
     image_to_ascii,
     image_to_ascii_from_image,
     save_ascii,
-    save_ascii_frames_js,
-    save_ascii_js,
     video_to_ascii_frames,
 )
 
@@ -17,7 +15,5 @@ __all__ = [
     "image_to_ascii",
     "image_to_ascii_from_image",
     "save_ascii",
-    "save_ascii_frames_js",
-    "save_ascii_js",
     "video_to_ascii_frames",
 ]

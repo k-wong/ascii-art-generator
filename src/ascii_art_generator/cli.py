@@ -10,8 +10,6 @@ from ascii_art_generator.converter import (
     AsciiOptions,
     image_to_ascii,
     save_ascii,
-    save_ascii_frames_js,
-    save_ascii_js,
     video_to_ascii_frames,
 )
 
@@ -78,32 +76,11 @@ def _options_from_args(args: argparse.Namespace) -> AsciiOptions:
     )
 
 
-def _build_image_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Convert an image to ASCII art.")
-    parser.add_argument("input", help="Input image path")
-    parser.add_argument("-o", "--output", help="Output text file path")
-    _add_ascii_options(parser)
-    parser.add_argument(
-        "--compare-to",
-        help="Optional expected ASCII file. Prints exact character match ratio.",
-    )
-    parser.add_argument("--print", action="store_true", help="Print ASCII art to terminal")
-    parser.add_argument("--output-js", help="Optional JS output path that writes window.ASCII_ART.")
-    parser.add_argument(
-        "--js-variable",
-        default="ASCII_ART",
-        help="Browser global variable name for --output-js.",
-    )
-    return parser
-
-
-def _build_video_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Convert a video to sampled ASCII art frames.")
-    parser.add_argument("input", help="Input video path")
+def _add_video_options(parser: argparse.ArgumentParser, output_dir_required: bool = False) -> None:
     parser.add_argument(
         "-d",
         "--output-dir",
-        required=True,
+        required=output_dir_required,
         help="Directory for generated per-frame .txt files.",
     )
     parser.add_argument("--fps", type=float, default=8.0, help="Sampling FPS from the source video")
@@ -114,16 +91,25 @@ def _build_video_parser() -> argparse.ArgumentParser:
         help="Maximum number of ASCII frames to generate",
     )
     parser.add_argument("--frame-prefix", default="frame", help="Prefix for generated frame files")
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Convert an image or video to ASCII art.")
+    parser.add_argument("input", help="Input image or video path")
     parser.add_argument(
-        "--output-js",
-        help="Optional JS output path that writes all frames to window.ASCII_VIDEO_FRAMES.",
+        "-v",
+        "--video",
+        action="store_true",
+        help="Treat input as a video and sample ASCII frames.",
     )
-    parser.add_argument(
-        "--js-variable",
-        default="ASCII_VIDEO_FRAMES",
-        help="Browser global variable name for --output-js.",
-    )
+    parser.add_argument("-o", "--output", help="Output text file path")
     _add_ascii_options(parser)
+    _add_video_options(parser)
+    parser.add_argument(
+        "--compare-to",
+        help="Optional expected ASCII file. Prints exact character match ratio.",
+    )
+    parser.add_argument("--print", action="store_true", help="Print ASCII art to terminal")
     return parser
 
 
@@ -137,28 +123,31 @@ def _similarity(a: str, b: str) -> float:
 
 
 def main() -> None:
-    args = _build_image_parser().parse_args()
+    parser = _build_parser()
+    args = parser.parse_args()
     options = _options_from_args(args)
+
+    if args.video:
+        if not args.output_dir:
+            parser.error("--output-dir is required with -v/--video")
+        _run_video(args, options)
+        return
+
     ascii_art = image_to_ascii(args.input, options=options)
 
     if args.output:
         save_ascii(ascii_art, args.output)
         print(f"Saved ASCII art to: {args.output}")
-    if args.output_js:
-        save_ascii_js(ascii_art, args.output_js, variable_name=args.js_variable)
-        print(f"Saved JS ASCII data to: {args.output_js}")
 
     if args.compare_to:
         expected = Path(args.compare_to).read_text(encoding="utf-8")
         print(f"Exact character match: {_similarity(ascii_art, expected):.4%}")
 
-    if args.print or (not args.output and not args.output_js):
+    if args.print or not args.output:
         print(ascii_art)
 
 
-def main_video() -> None:
-    args = _build_video_parser().parse_args()
-    options = _options_from_args(args)
+def _run_video(args: argparse.Namespace, options: AsciiOptions) -> None:
     frames = video_to_ascii_frames(
         args.input,
         frames_per_second=args.fps,
@@ -168,10 +157,6 @@ def main_video() -> None:
         frame_prefix=args.frame_prefix,
     )
     print(f"Saved {len(frames)} ASCII frame(s) to: {args.output_dir}")
-
-    if args.output_js:
-        save_ascii_frames_js(frames, args.output_js, variable_name=args.js_variable)
-        print(f"Saved JS ASCII frame data to: {args.output_js}")
 
 
 if __name__ == "__main__":
