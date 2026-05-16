@@ -84,20 +84,6 @@ image = Image.open("input.jpg")
 ascii_art = image_to_ascii_from_image(image, width=120)
 ```
 
-## Development
-
-Run tests:
-
-```bash
-python -m pytest
-```
-
-Run linting:
-
-```bash
-python -m ruff check .
-```
-
 
 ## License
 
