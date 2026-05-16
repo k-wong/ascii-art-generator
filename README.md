@@ -13,18 +13,19 @@ A small Python library and CLI for converting images and videos into ASCII art, 
 - Use as a command-line tool or import as a Python library.
 - Sample videos into ASCII frames.
 
+
+## Requirements
+
+- Python 3.9 or newer
+- pip with PEP 517 / `pyproject.toml` build support
+- setuptools 68 or newer
+
 ## Installation
 
-After publishing to PyPI:
-
 ```bash
-python -m pip install ascii-art-generator
-```
-
-For local development from this repository, or before the package is published:
-
-```bash
-python -m pip install -e ".[dev]"
+python3 -m pip install .
+or
+python -m pip install .
 ```
 
 ## CLI Usage

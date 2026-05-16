@@ -71,13 +71,18 @@ def _options_from_args(args: argparse.Namespace) -> AsciiOptions:
     )
 
 
-def _add_video_options(parser: argparse.ArgumentParser, output_dir_required: bool = False) -> None:
-    parser.add_argument(
+def _add_conditionally_required_options(parser: argparse.ArgumentParser) -> None:
+    conditionally_required = parser.add_argument_group("conditionally required arguments")
+    conditionally_required.add_argument(
         "-d",
         "--output-dir",
-        required=output_dir_required,
-        help="Directory for generated per-frame .txt files.",
+        help="Directory for generated per-frame .txt files. Required with -v/--video.",
     )
+
+    parser._action_groups.insert(1, parser._action_groups.pop())
+
+
+def _add_video_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--fps", type=float, help="Sampling FPS from the source video")
     parser.add_argument(
         "--frames",
@@ -89,7 +94,7 @@ def _add_video_options(parser: argparse.ArgumentParser, output_dir_required: boo
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Convert an image or video to ASCII art.")
-    parser.add_argument("input", help="Input image or video path")
+    parser.add_argument("input", metavar="INPUT", help="Required input image or video path.")
     parser.add_argument(
         "-v",
         "--video",
@@ -98,6 +103,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("-o", "--output", help="Output text file path")
     _add_ascii_options(parser)
+    _add_conditionally_required_options(parser)
     _add_video_options(parser)
     parser.add_argument(
         "--compare-to",

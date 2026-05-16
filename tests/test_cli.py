@@ -5,6 +5,23 @@ import pytest
 from ascii_art_generator import cli
 
 
+def test_help_clearly_states_required_arguments() -> None:
+    raw_help_text = cli._build_parser().format_help()
+    help_text = " ".join(raw_help_text.split())
+
+    assert "INPUT" in help_text
+    assert "Required input image or video path." in help_text
+    assert "Required with -v/--video." in help_text
+
+    positional_index = raw_help_text.index("positional arguments:")
+    conditionally_required_index = raw_help_text.index("conditionally required arguments:")
+    optional_index = raw_help_text.index("optional arguments:")
+    output_dir_index = raw_help_text.index("-d OUTPUT_DIR, --output-dir OUTPUT_DIR")
+
+    assert positional_index < conditionally_required_index < optional_index
+    assert conditionally_required_index < output_dir_index < optional_index
+
+
 def test_photo_mode_uses_autocontrast_by_default(monkeypatch, capsys) -> None:
     calls = {}
 
