@@ -2,9 +2,8 @@
 
 A small Python library and CLI for converting images and videos into ASCII art, with customizable styling.
 
-## Demo
-
 <img width="1204" height="778" alt="Screenshot 2026-05-14 at 8 32 22 AM" src="https://github.com/user-attachments/assets/f0c087ef-a68d-4606-b7f1-11c92b075023" />
+<video src="https://github.com/user-attachments/assets/5c472d22-515c-483c-affb-b09deb56e7cd" width="600" height="auto" controls></video>
 
 ## Features
 
