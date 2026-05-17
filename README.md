@@ -22,6 +22,8 @@ A small Python library and CLI for converting images and videos into ASCII art, 
 
 ## Installation
 
+1. Clone/download this repo
+2. Navigate to the local folder and run the below:
 ```bash
 python3 -m pip install .
 or
