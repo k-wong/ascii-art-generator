@@ -9,10 +9,10 @@ A small Python library and CLI for converting images and videos into ASCII art, 
 ## Features
 
 - Convert image files to ASCII text.
+- Sample videos into ASCII frames, and set your desired FPS and total frames/animation length (starts from 0:00).
 - Tune width, height, contrast, brightness, gamma, edge boost, character set, and resize kernel.
+- Auto-contrast built in for great default results.
 - Use as a command-line tool or import as a Python library.
-- Sample videos into ASCII frames.
-
 
 ## Requirements
 
